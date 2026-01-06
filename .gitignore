@@ -1,0 +1,15 @@
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.log
+notification.db
+*.swp
+*.swo
+*~
+.DS_Store
+go.sum
