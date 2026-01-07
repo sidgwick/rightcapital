@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"notification-system/internal/model"
 	"time"
 
@@ -15,6 +16,7 @@ type NotificationTaskDB struct {
 	TargetAddress string                 `gorm:"size:255;not null"`
 	Content       string                 `gorm:"type:text"`
 	Semantic      model.DeliverySemantic `gorm:"size:50;not null"`
+	Platform      string                 `gorm:"size:100;not null"`
 	MaxRetries    int                    `gorm:"not null;default:3"`
 	Deadline      *time.Time             `gorm:"type:datetime"`
 	CallbackURL   string                 `gorm:"size:500"`
@@ -35,6 +37,7 @@ func (db *NotificationTaskDB) ToModel() *model.NotificationTask {
 		TargetAddress: db.TargetAddress,
 		Content:       db.Content,
 		Semantic:      db.Semantic,
+		Platform:      db.Platform,
 		MaxRetries:    db.MaxRetries,
 		Deadline:      db.Deadline,
 		CallbackURL:   db.CallbackURL,
@@ -70,6 +73,10 @@ func (r *MySQLRepository) AutoMigrate() error {
 }
 
 func (r *MySQLRepository) CreateTask(ctx context.Context, task *model.NotificationTask) error {
+	if task.Platform == "" {
+		return fmt.Errorf("platform is required")
+	}
+
 	contentJSON, err := json.Marshal(task.Content)
 	if err != nil {
 		return err
@@ -80,6 +87,7 @@ func (r *MySQLRepository) CreateTask(ctx context.Context, task *model.Notificati
 		TargetAddress: task.TargetAddress,
 		Content:       string(contentJSON),
 		Semantic:      task.Semantic,
+		Platform:      task.Platform,
 		MaxRetries:    task.MaxRetries,
 		Deadline:      task.Deadline,
 		CallbackURL:   task.CallbackURL,

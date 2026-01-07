@@ -27,6 +27,7 @@ type NotificationTask struct {
 	TargetAddress string           `json:"target_address" gorm:"size:255;not null"`
 	Content       string           `json:"content" gorm:"type:text"`
 	Semantic      DeliverySemantic `json:"semantic" gorm:"size:50;not null"`
+	Platform      string           `json:"platform" gorm:"size:100;not null"`
 	MaxRetries    int              `json:"max_retries" gorm:"not null;default:3"`
 	Deadline      *time.Time       `json:"deadline" gorm:"type:datetime"`
 	CallbackURL   string           `json:"callback_url" gorm:"size:500"`
@@ -41,6 +42,7 @@ type CreateTaskRequest struct {
 	TargetAddress string           `json:"target_address"`
 	Content       interface{}      `json:"content"`
 	Semantic      DeliverySemantic `json:"semantic"`
+	Platform      string           `json:"platform" binding:"required"`
 	MaxRetries    *int             `json:"max_retries"`
 	Deadline      *time.Time       `json:"deadline"`
 	CallbackURL   string           `json:"callback_url"`

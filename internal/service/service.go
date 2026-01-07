@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"notification-system/internal/deliver"
 	"notification-system/internal/model"
 	"notification-system/internal/repository"
@@ -32,6 +33,10 @@ func (s *Service) CreateTask(ctx context.Context, req *model.CreateTaskRequest) 
 		maxRetries = *req.MaxRetries
 	}
 
+	if req.Platform == "" {
+		return "", fmt.Errorf("platform is required")
+	}
+
 	contentJSON, err := json.Marshal(req.Content)
 	if err != nil {
 		return "", err
@@ -42,6 +47,7 @@ func (s *Service) CreateTask(ctx context.Context, req *model.CreateTaskRequest) 
 		TargetAddress: req.TargetAddress,
 		Content:       string(contentJSON),
 		Semantic:      req.Semantic,
+		Platform:      req.Platform,
 		MaxRetries:    maxRetries,
 		Deadline:      req.Deadline,
 		CallbackURL:   req.CallbackURL,

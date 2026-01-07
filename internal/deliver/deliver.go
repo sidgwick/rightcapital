@@ -71,7 +71,7 @@ func (d *Deliverer) deliverTask(ctx context.Context, task *model.NotificationTas
 	}
 
 	err := handler.Handle(ctx, task.ID, func() error {
-		platform, ok := d.platformMgr.GetPlatform("default")
+		platform, ok := d.platformMgr.GetPlatform(task.Platform)
 		if !ok {
 			return fmt.Errorf("platform not found")
 		}

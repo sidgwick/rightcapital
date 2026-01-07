@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS notification_tasks (
     target_address VARCHAR(255) NOT NULL,
     content TEXT,
     semantic VARCHAR(50) NOT NULL,
+    platform VARCHAR(100) NOT NULL,
     max_retries INT NOT NULL DEFAULT 3,
     deadline DATETIME,
     callback_url VARCHAR(500),
