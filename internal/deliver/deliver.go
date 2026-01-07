@@ -179,6 +179,8 @@ func (d *Deliverer) sendMQCallback(mq string, callback *model.CallbackRequest) {
 	}
 
 	log.Printf("[MQ Callback] Sending message to %s for task %s: %s", mq, callback.TaskID, string(jsonData))
+
+	// TODO: MQ message sending...
 }
 
 func (d *Deliverer) GetCallbackQueue() <-chan *model.CallbackRequest {

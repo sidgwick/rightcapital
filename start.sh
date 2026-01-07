@@ -10,6 +10,10 @@ go mod tidy
 echo "Building project..."
 go build -o bin/notification-system cmd/server/main.go
 
+# # 启动测试 MySQL
+# docker compose up -d
+
 # 运行项目
 echo "Running server..."
+cp .env.example .env
 ./bin/notification-system
