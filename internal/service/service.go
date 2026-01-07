@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"notification-system/internal/deliver"
 	"notification-system/internal/model"
 	"notification-system/internal/repository"
@@ -31,10 +32,15 @@ func (s *Service) CreateTask(ctx context.Context, req *model.CreateTaskRequest) 
 		maxRetries = *req.MaxRetries
 	}
 
+	contentJSON, err := json.Marshal(req.Content)
+	if err != nil {
+		return "", err
+	}
+
 	task := &model.NotificationTask{
 		ID:            uuid.New().String(),
 		TargetAddress: req.TargetAddress,
-		Content:       req.Content,
+		Content:       string(contentJSON),
 		Semantic:      req.Semantic,
 		MaxRetries:    maxRetries,
 		Deadline:      req.Deadline,
@@ -46,7 +52,7 @@ func (s *Service) CreateTask(ctx context.Context, req *model.CreateTaskRequest) 
 		UpdatedAt:     time.Now(),
 	}
 
-	err := s.repo.CreateTask(ctx, task)
+	err = s.repo.CreateTask(ctx, task)
 	if err != nil {
 		return "", err
 	}
@@ -60,10 +66,17 @@ func (s *Service) GetTask(ctx context.Context, taskID string) (*model.TaskQueryR
 		return nil, err
 	}
 
+	var content interface{}
+	if task.Content != "" {
+		if err := json.Unmarshal([]byte(task.Content), &content); err != nil {
+			content = task.Content
+		}
+	}
+
 	return &model.TaskQueryResponse{
 		ID:            task.ID,
 		TargetAddress: task.TargetAddress,
-		Content:       task.Content,
+		Content:       content,
 		Status:        task.Status,
 		RetryCount:    task.RetryCount,
 		CreatedAt:     task.CreatedAt,

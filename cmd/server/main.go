@@ -13,6 +13,7 @@ import (
 	"notification-system/internal/service"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -33,7 +34,19 @@ func (p *DefaultPlatform) Deliver(ctx context.Context, target string, content in
 func main() {
 	cfg := config.NewConfig()
 
-	repo := repository.NewInMemoryRepository()
+	var repo repository.Repository
+	if cfg.UseMySQL {
+		log.Println("Using MySQL repository...")
+		mysqlRepo, err := repository.NewMySQLRepository(cfg.DB.DSN)
+		if err != nil {
+			log.Fatalf("Failed to connect to MySQL: %v", err)
+		}
+		repo = mysqlRepo
+		log.Println("MySQL connected successfully")
+	} else {
+		log.Println("Using in-memory repository...")
+		repo = repository.NewInMemoryRepository()
+	}
 
 	platformMgr := platform.NewPlatformManager()
 	platformMgr.RegisterPlatform(&DefaultPlatform{})
@@ -58,7 +71,7 @@ func main() {
 	handler.RegisterRoutes(r)
 
 	go func() {
-		if err := r.Run(":" + string(rune(cfg.Server.Port))); err != nil {
+		if err := r.Run(":" + strconv.Itoa(cfg.Server.Port)); err != nil {
 			log.Fatalf("Failed to start server: %v", err)
 		}
 	}()
