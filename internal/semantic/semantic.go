@@ -3,6 +3,8 @@ package semantic
 import (
 	"context"
 	"errors"
+	"notification-system/internal/model"
+	"notification-system/internal/repository"
 )
 
 type SemanticHandler interface {
@@ -38,26 +40,31 @@ func (h *AtMostOnceHandler) Handle(ctx context.Context, taskID string, deliverFu
 }
 
 type ExactlyOnceHandler struct {
-	delivered map[string]bool
+	repo repository.Repository
 }
 
-func NewExactlyOnceHandler() *ExactlyOnceHandler {
+func NewExactlyOnceHandler(repo repository.Repository) *ExactlyOnceHandler {
 	return &ExactlyOnceHandler{
-		delivered: make(map[string]bool),
+		repo: repo,
 	}
 }
 
 func (h *ExactlyOnceHandler) Handle(ctx context.Context, taskID string, deliverFunc func() error) error {
-	if h.delivered[taskID] {
+	marked, err := h.repo.MarkTaskAsSuccessIfNotDelivered(ctx, taskID)
+	if err != nil {
+		return err
+	}
+
+	if !marked {
 		return errors.New("task already delivered")
 	}
 
-	err := deliverFunc()
-	if err != nil {
-		return errors.New("delivery failed")
+	deliverErr := deliverFunc()
+	if deliverErr != nil {
+		h.repo.UpdateTaskStatus(ctx, taskID, model.TaskStatusPending)
+		return errors.New("delivery failed, task status reverted")
 	}
 
-	h.delivered[taskID] = true
 	return nil
 }
 

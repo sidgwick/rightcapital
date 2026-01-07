@@ -13,6 +13,7 @@ type Repository interface {
 	UpdateTaskRetryCount(ctx context.Context, id string, retryCount int) error
 	GetPendingTasks(ctx context.Context) ([]*model.NotificationTask, error)
 	DeleteTask(ctx context.Context, id string) error
+	MarkTaskAsSuccessIfNotDelivered(ctx context.Context, id string) (bool, error)
 }
 
 type InMemoryRepository struct {
@@ -63,4 +64,19 @@ func (r *InMemoryRepository) GetPendingTasks(ctx context.Context) ([]*model.Noti
 func (r *InMemoryRepository) DeleteTask(ctx context.Context, id string) error {
 	delete(r.tasks, id)
 	return nil
+}
+
+func (r *InMemoryRepository) MarkTaskAsSuccessIfNotDelivered(ctx context.Context, id string) (bool, error) {
+	task, exists := r.tasks[id]
+	if !exists {
+		return false, nil
+	}
+
+	if task.Status == model.TaskStatusSuccess {
+		return false, nil
+	}
+
+	task.Status = model.TaskStatusSuccess
+	task.UpdatedAt = time.Now()
+	return true, nil
 }

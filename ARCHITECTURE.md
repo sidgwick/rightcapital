@@ -57,9 +57,9 @@
 
 ### 4. Semantic (internal/semantic)
 投递语义处理器:
-- `AtLeastOnceHandler`: 至少一次
-- `AtMostOnceHandler`: 至多一次
-- `ExactlyOnceHandler`: 有且只有一次
+- `AtLeastOnceHandler`: 至少一次，失败后重试
+- `AtMostOnceHandler`: 至多一次，失败后不重试
+- `ExactlyOnceHandler`: 有且只有一次，通过事务性更新任务状态实现幂等性（DB 持久化）
 
 ### 5. Deliver (internal/deliver)
 投递执行器:

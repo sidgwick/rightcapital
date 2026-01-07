@@ -41,7 +41,7 @@ func main() {
 	semanticMgr := semantic.NewSemanticManager()
 	semanticMgr.RegisterHandler(string(model.DeliverySemanticAtLeastOnce), semantic.NewAtLeastOnceHandler())
 	semanticMgr.RegisterHandler(string(model.DeliverySemanticAtMostOnce), semantic.NewAtMostOnceHandler())
-	semanticMgr.RegisterHandler(string(model.DeliverySemanticExactlyOnce), semantic.NewExactlyOnceHandler())
+	semanticMgr.RegisterHandler(string(model.DeliverySemanticExactlyOnce), semantic.NewExactlyOnceHandler(repo))
 
 	deliverer := deliver.NewDeliverer(repo, platformMgr, semanticMgr)
 
