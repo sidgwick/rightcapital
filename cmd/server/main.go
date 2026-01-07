@@ -8,6 +8,7 @@ import (
 	"notification-system/internal/deliver"
 	"notification-system/internal/model"
 	"notification-system/internal/platform"
+	"notification-system/internal/platform/impl"
 	"notification-system/internal/repository"
 	"notification-system/internal/semantic"
 	"notification-system/internal/service"
@@ -19,17 +20,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
-
-type DefaultPlatform struct{}
-
-func (p *DefaultPlatform) Name() string {
-	return "default"
-}
-
-func (p *DefaultPlatform) Deliver(ctx context.Context, target string, content interface{}) error {
-	log.Printf("Delivering to %s: %v", target, content)
-	return nil
-}
 
 func main() {
 	cfg := config.NewConfig()
@@ -49,7 +39,11 @@ func main() {
 	}
 
 	platformMgr := platform.NewPlatformManager()
-	platformMgr.RegisterPlatform(&DefaultPlatform{})
+
+	platformMgr.RegisterPlatform(impl.NewHTTP2_Platform())
+	platformMgr.RegisterPlatform(impl.NewHTTPPlatform())
+	platformMgr.RegisterPlatform(impl.NewEmailPlatform())
+	platformMgr.RegisterPlatform(impl.NewSMSPlatform())
 
 	semanticMgr := semantic.NewSemanticManager()
 	semanticMgr.RegisterHandler(string(model.DeliverySemanticAtLeastOnce), semantic.NewAtLeastOnceHandler())
