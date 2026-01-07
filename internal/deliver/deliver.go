@@ -79,6 +79,12 @@ func (d *Deliverer) deliverTask(ctx context.Context, task *model.NotificationTas
 	})
 
 	if err != nil {
+		if err == semantic.ErrNoRetry {
+			d.repo.UpdateTaskStatus(ctx, task.ID, model.TaskStatusFailed)
+			d.enqueueCallback(task.ID, false, err.Error(), nil)
+			return
+		}
+
 		if task.RetryCount >= task.MaxRetries {
 			d.repo.UpdateTaskStatus(ctx, task.ID, model.TaskStatusFailed)
 			d.enqueueCallback(task.ID, false, "max retries exceeded", nil)

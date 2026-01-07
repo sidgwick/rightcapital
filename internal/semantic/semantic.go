@@ -11,6 +11,8 @@ type SemanticHandler interface {
 	Handle(ctx context.Context, taskID string, deliverFunc func() error) error
 }
 
+var ErrNoRetry = errors.New("delivery failed, no retry")
+
 type AtLeastOnceHandler struct{}
 
 func NewAtLeastOnceHandler() *AtLeastOnceHandler {
@@ -34,7 +36,7 @@ func NewAtMostOnceHandler() *AtMostOnceHandler {
 func (h *AtMostOnceHandler) Handle(ctx context.Context, taskID string, deliverFunc func() error) error {
 	err := deliverFunc()
 	if err != nil {
-		return errors.New("delivery failed, no retry for at_most_once semantic")
+		return ErrNoRetry
 	}
 	return nil
 }
