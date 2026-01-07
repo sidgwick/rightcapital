@@ -23,43 +23,43 @@ const (
 )
 
 type NotificationTask struct {
-	ID            string
-	TargetAddress string
-	Content       interface{}
-	Semantic      DeliverySemantic
-	MaxRetries    int
-	Deadline      *time.Time
-	CallbackURL   string
-	CallbackMQ    string
-	Status        TaskStatus
-	RetryCount    int
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID            string           `json:"id"`
+	TargetAddress string           `json:"target_address"`
+	Content       interface{}      `json:"content"`
+	Semantic      DeliverySemantic `json:"semantic"`
+	MaxRetries    int              `json:"max_retries"`
+	Deadline      *time.Time       `json:"deadline"`
+	CallbackURL   string           `json:"callback_url"`
+	CallbackMQ    string           `json:"callback_mq"`
+	Status        TaskStatus       `json:"status"`
+	RetryCount    int              `json:"retry_count"`
+	CreatedAt     time.Time        `json:"created_at"`
+	UpdatedAt     time.Time        `json:"updated_at"`
 }
 
 type CreateTaskRequest struct {
-	TargetAddress string
-	Content       interface{}
-	Semantic      DeliverySemantic
-	MaxRetries    *int
-	Deadline      *time.Time
-	CallbackURL   string
-	CallbackMQ    string
+	TargetAddress string           `json:"target_address"`
+	Content       interface{}      `json:"content"`
+	Semantic      DeliverySemantic `json:"semantic"`
+	MaxRetries    *int             `json:"max_retries"`
+	Deadline      *time.Time       `json:"deadline"`
+	CallbackURL   string           `json:"callback_url"`
+	CallbackMQ    string           `json:"callback_mq"`
 }
 
 type TaskQueryResponse struct {
-	ID            string
-	TargetAddress string
-	Content       interface{}
-	Status        TaskStatus
-	RetryCount    int
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID            string      `json:"id"`
+	TargetAddress string      `json:"target_address"`
+	Content       interface{} `json:"content"`
+	Status        TaskStatus  `json:"status"`
+	RetryCount    int         `json:"retry_count"`
+	CreatedAt     time.Time   `json:"created_at"`
+	UpdatedAt     time.Time   `json:"updated_at"`
 }
 
 type CallbackRequest struct {
-	TaskID   string
-	Success  bool
-	Message  string
-	Metadata interface{}
+	TaskID   string      `json:"task_id"`
+	Success  bool        `json:"success"`
+	Message  string      `json:"message"`
+	Metadata interface{} `json:"metadata"`
 }
