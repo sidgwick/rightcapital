@@ -84,19 +84,6 @@ func (s *Service) CancelTask(ctx context.Context, taskID string) error {
 	return s.repo.UpdateTaskStatus(ctx, taskID, model.TaskStatusCancelled)
 }
 
-func (s *Service) HandleCallback(ctx context.Context, callback *model.CallbackRequest) error {
-	task, err := s.repo.GetTaskByID(ctx, callback.TaskID)
-	if err != nil {
-		return err
-	}
-
-	if callback.Success {
-		return s.repo.UpdateTaskStatus(ctx, task.ID, model.TaskStatusSuccess)
-	}
-
-	return s.repo.UpdateTaskStatus(ctx, task.ID, model.TaskStatusFailed)
-}
-
 func (s *Service) Start(ctx context.Context) {
 	s.deliverer.Start(ctx)
 }

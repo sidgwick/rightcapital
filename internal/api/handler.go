@@ -22,7 +22,6 @@ func (h *Handler) RegisterRoutes(r *gin.Engine) {
 	r.POST("/tasks", h.CreateTask)
 	r.GET("/tasks/:id", h.GetTask)
 	r.DELETE("/tasks/:id", h.CancelTask)
-	r.POST("/callbacks", h.HandleCallback)
 }
 
 func (h *Handler) CreateTask(c *gin.Context) {
@@ -61,20 +60,4 @@ func (h *Handler) CancelTask(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "task cancelled"})
-}
-
-func (h *Handler) HandleCallback(c *gin.Context) {
-	var req model.CallbackRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	err := h.service.HandleCallback(c.Request.Context(), &req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "callback processed"})
 }

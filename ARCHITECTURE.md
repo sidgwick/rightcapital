@@ -80,7 +80,6 @@ HTTP API 层:
 - `POST /tasks`: 创建任务
 - `GET /tasks/:id`: 查询任务
 - `DELETE /tasks/:id`: 取消任务
-- `POST /callbacks`: 回调处理
 
 ## 运行说明
 

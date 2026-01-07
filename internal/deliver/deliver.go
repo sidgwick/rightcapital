@@ -1,8 +1,12 @@
 package deliver
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 	"notification-system/internal/model"
 	"notification-system/internal/platform"
 	"notification-system/internal/repository"
@@ -125,9 +129,50 @@ func (d *Deliverer) sendCallback(callback *model.CallbackRequest) {
 }
 
 func (d *Deliverer) sendHTTPCallback(url string, callback *model.CallbackRequest) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	jsonData, err := json.Marshal(callback)
+	if err != nil {
+		log.Printf("[HTTP Callback] Failed to marshal callback for task %s: %v", callback.TaskID, err)
+		return
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Printf("[HTTP Callback] Failed to create request for task %s: %v", callback.TaskID, err)
+		return
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("[HTTP Callback] Failed to send callback for task %s to %s: %v", callback.TaskID, url, err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		log.Printf("[HTTP Callback] Received non-2xx status %d for task %s", resp.StatusCode, callback.TaskID)
+		return
+	}
+
+	log.Printf("[HTTP Callback] Successfully sent callback for task %s to %s", callback.TaskID, url)
 }
 
 func (d *Deliverer) sendMQCallback(mq string, callback *model.CallbackRequest) {
+	jsonData, err := json.Marshal(callback)
+	if err != nil {
+		log.Printf("[MQ Callback] Failed to marshal callback for task %s: %v", callback.TaskID, err)
+		return
+	}
+
+	log.Printf("[MQ Callback] Sending message to %s for task %s: %s", mq, callback.TaskID, string(jsonData))
 }
 
 func (d *Deliverer) GetCallbackQueue() <-chan *model.CallbackRequest {

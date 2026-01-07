@@ -2,6 +2,8 @@
 
 ## 1. 创建通知任务
 
+**注意**：调用者在创建任务时，需要提供 `callback_url`，系统会在任务投递完成后主动调用该 URL 通知结果。
+
 ```bash
 curl -X POST http://localhost:8080/tasks \
   -H "Content-Type: application/json" \
@@ -13,7 +15,7 @@ curl -X POST http://localhost:8080/tasks \
     },
     "semantic": "at_least_once",
     "max_retries": 3,
-    "callback_url": "http://localhost:8080/callbacks"
+    "callback_url": "http://your-server.com/notification-callback"
   }'
 ```
 
@@ -21,6 +23,18 @@ curl -X POST http://localhost:8080/tasks \
 ```json
 {
   "task_id": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+**回调数据格式**：
+任务完成后，系统会向 `callback_url` 发送 POST 请求：
+
+```json
+{
+  "task_id": "550e8400-e29b-41d4-a716-446655440000",
+  "success": true,
+  "message": "delivered successfully",
+  "metadata": null
 }
 ```
 
@@ -56,25 +70,6 @@ curl -X DELETE http://localhost:8080/tasks/550e8400-e29b-41d4-a716-446655440000
 ```json
 {
   "message": "task cancelled"
-}
-```
-
-## 4. 任务执行结果回调
-
-```bash
-curl -X POST http://localhost:8080/callbacks \
-  -H "Content-Type: application/json" \
-  -d '{
-    "task_id": "550e8400-e29b-41d4-a716-446655440000",
-    "success": true,
-    "message": "delivered successfully"
-  }'
-```
-
-响应:
-```json
-{
-  "message": "callback processed"
 }
 ```
 
